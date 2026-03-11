@@ -1,0 +1,55 @@
+#define BLYNK_TEMPLATE_ID "TMPLxxxxx"               // <-- apna Template ID yahan likho
+#define BLYNK_TEMPLATE_NAME "Auto Watering System"  // <-- apna Template Name yahan likho
+#define BLYNK_AUTH_TOKEN "YourAuthToken"            // <-- apna Auth Token yahan likho
+
+#include <WiFi.h>
+#include <BlynkSimpleEsp32.h>
+
+char ssid[] = "YourWiFiName";       // <-- WiFi ka naam (SSID)
+char pass[] = "YourWiFiPassword";   // <-- WiFi ka password   
+
+#define SOIL_SENSOR_PIN 34
+#define RELAY_PIN 25
+
+int moistureLevel = 0;
+bool manualControl = false;  // Track manual override
+
+BlynkTimer timer;
+
+// Manual control from Blynk App
+BLYNK_WRITE(V0) {
+  int value = param.asInt();
+  manualControl = true;
+  digitalWrite(RELAY_PIN, value);  // HIGH ya LOW
+}
+
+// Read soil moisture and auto control relay
+void checkSoil() {
+  if (manualControl) return;  // Manual mode active, skip auto control
+
+  moistureLevel = analogRead(SOIL_SENSOR_PIN);
+  int percentage = map(moistureLevel, 4095, 0, 0, 100);
+
+  Blynk.virtualWrite(V1, percentage);
+
+  if (percentage < 30) {
+    digitalWrite(RELAY_PIN, HIGH);  // Relay ON
+  } else {
+    digitalWrite(RELAY_PIN, LOW);   // Relay OFF
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW);  // Default OFF
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  timer.setInterval(3000L, checkSoil);
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
