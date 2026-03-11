@@ -1,47 +1,75 @@
+// Import React and the useState hook
 import React, { useState } from "react";
+
+// Import an icon from the react-icons library
 import { BsFillClipboardPlusFill } from "react-icons/bs";
 
+// CreateArea component receives the onAdd function from its parent component
 function CreateArea({ onAdd }) {
+
+  // State to store the note being typed
+  // note contains two fields: title and content
   const [note, setNote] = useState({ title: "", content: "" });
 
+  // Function that runs whenever the user types in the input or textarea
   const handleChange = ({ target: { name, value } }) => {
+
+    // Update the state while keeping previous values
+    // ...prev copies the old note values
+    // [name]: value updates either title or content dynamically
     setNote((prev) => ({
       ...prev,
       [name]: value
     }));
   };
 
+  // Function that runs when the form is submitted
   const submitNote = (e) => {
+
+    // Prevents the page from refreshing when the form submits
     e.preventDefault();
 
+    // If both title and content are empty, do nothing
     if (!note.title && !note.content) return;
 
+    // Send the note data to the parent component
     onAdd(note);
+
+    // Reset the note fields after submission
     setNote({ title: "", content: "" });
   };
 
+  // JSX returned by the component (the UI)
   return (
+
+    // Form element that triggers submitNote when submitted
     <form className="create-note" onSubmit={submitNote}>
+
+      {/* Input field for the note title */}
       <input
-        name="title"
-        placeholder="Title"
-        value={note.title}
-        onChange={handleChange}
+        name="title"                // identifies this field
+        placeholder="Title"         // placeholder text
+        value={note.title}          // controlled input value
+        onChange={handleChange}     // updates state when typing
       />
 
+      {/* Textarea for the note content */}
       <textarea
-        name="content"
-        placeholder="Take a note..."
+        name="content"              // identifies this field
+        placeholder="Take a note..." 
         rows="3"
-        value={note.content}
-        onChange={handleChange}
+        value={note.content}        // controlled input value
+        onChange={handleChange}     // updates state when typing
       />
 
+      {/* Submit button with clipboard icon */}
       <button type="submit">
         <BsFillClipboardPlusFill />
       </button>
+
     </form>
   );
 }
 
+// Export the component so other files can use it
 export default CreateArea;
