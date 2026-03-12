@@ -30,7 +30,7 @@ void checkSoil() {
   moistureLevel = analogRead(SOIL_SENSOR_PIN);
   int percentage = map(moistureLevel, 4095, 0, 0, 100);
 
-  Blynk.virtualWrite(V1, percentage);
+  Blynk.virtualWrite(V0, percentage);
 
   if (percentage < 30) {
     digitalWrite(RELAY_PIN, HIGH);  // Relay ON
